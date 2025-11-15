@@ -1,241 +1,425 @@
-# "Microservices with Go" course project
+# Ryde - Distributed Ride-Sharing Platform
 
-This is the starter code for the "Microservices with Go" project.
+---
 
-## Project overview
+## 📋 Table of Contents
 
-In this project‑driven course, you’ll build the backend microservices system for a Uber‑style ride‑sharing app from the ground up—using Go, Docker, and Kubernetes.
+- [Overview](#-overview)
+- [Architecture](#-architecture)
+- [Technology Stack](#-technology-stack)
+- [Prerequisites](#-prerequisites)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Services](#-services)
+- [Development](#-development)
+- [Infrastructure](#-infrastructure)
+- [Observability](#-observability)
+- [Contributing](#-contributing)
 
-By the end, you’ll have a fully deployed, horizontally scalable ride‑sharing system that’s ready for real traffic. Plus, you’ll walk away with reusable template for building future distributed projects—accelerating your path to become a lead engineer.
+---
 
-Check it out at: https://www.selfmadeengineer.com/
+## 🚀 Overview
 
-## Trip Scheduling Flow
-[![](https://mermaid.ink/img/pako:eNqNVt9v2jAQ_lcsP21qGvGjZSEPlSpaTX1YxWDVpAmpMvZBIkicOQ6UVf3fd4mdEgcKzQOK47v7vjt_d-aVcimAhnSW5vC3gJTDXcyWiiWzlOCTMaVjHmcs1eQpB3X49Xb88J1p2LLd4d4vFWdTUJuYw-HmnYo3oM5sH34fs10Cqf7Qb6oRFL-bnZLz5c3NnmRIRgrwteJGJmXOuTa2eyP0aFAPyXIyHtWO5YaxN7-PEoNJpNrM1nOSCw3Y_QuPWLq0nBvWl4h30fIos_Bhg5n6vMIVDTgVLyNN5II4LO9L65A8wrbyJimAyAkjwlbSBHBwENisQ2vl80T4pfezapbGRW1RHckkYaloILMNi9dsvgYXtHUQv2E-lXwF-hCccQ5ZE3sNiwZ0A_O2sjSw6oPTbB_nWbT3TB3dGEiykGrLlABBtCQTNp_H-sdP8sUwK3EmkGcS2-lnAQV8rUtwVCchGSvJIc8tJ2KoMGxDjxSZKIVapZZrpovc9_2j4nF7whGPifvM8jxepp8XkW2SzAQmOVKMZXoyF6_Nwq5bunetkLxp2HfIUQR8JQts5Bqz9DJGx3K1ZtZdHAVpCc9mZStkc3s-0WZtTFukOsGnB5QeE7u6PM4gKScQsozktmF_TmuN1qidUHZJa6q9V04m2RowlrV1SnbQc5GUq33YacFL_R2faHtPzxXt0ZN1O-6iXbRW1Zu4HxeiqjTJivk6ziPTcp-U1aXD-NPgZ46a21KL061Qj6kzc38_facarzCyv1tOdGgVk7OUpCipOSxjZEI9moBKWCzwKn8tQ8yojiCBGQ3xVTC1muEV_4Z2rNByuks5DbUqwKNKFsuIhgu2znFlZo79C1Cb4L36R8rmkoav9IWGvW_-1XVn0O_1-kE3GAyHgUd3-Lnb8fu9frc_xKfbvQ6CN4_-qyJ0_KDX7Q86QTDoDAfD66ve23_1IPGQ?type=png)](https://mermaid.live/edit#pako:eNqNVt9v2jAQ_lcsP21qGvGjZSEPlSpaTX1YxWDVpAmpMvZBIkicOQ6UVf3fd4mdEgcKzQOK47v7vjt_d-aVcimAhnSW5vC3gJTDXcyWiiWzlOCTMaVjHmcs1eQpB3X49Xb88J1p2LLd4d4vFWdTUJuYw-HmnYo3oM5sH34fs10Cqf7Qb6oRFL-bnZLz5c3NnmRIRgrwteJGJmXOuTa2eyP0aFAPyXIyHtWO5YaxN7-PEoNJpNrM1nOSCw3Y_QuPWLq0nBvWl4h30fIos_Bhg5n6vMIVDTgVLyNN5II4LO9L65A8wrbyJimAyAkjwlbSBHBwENisQ2vl80T4pfezapbGRW1RHckkYaloILMNi9dsvgYXtHUQv2E-lXwF-hCccQ5ZE3sNiwZ0A_O2sjSw6oPTbB_nWbT3TB3dGEiykGrLlABBtCQTNp_H-sdP8sUwK3EmkGcS2-lnAQV8rUtwVCchGSvJIc8tJ2KoMGxDjxSZKIVapZZrpovc9_2j4nF7whGPifvM8jxepp8XkW2SzAQmOVKMZXoyF6_Nwq5bunetkLxp2HfIUQR8JQts5Bqz9DJGx3K1ZtZdHAVpCc9mZStkc3s-0WZtTFukOsGnB5QeE7u6PM4gKScQsozktmF_TmuN1qidUHZJa6q9V04m2RowlrV1SnbQc5GUq33YacFL_R2faHtPzxXt0ZN1O-6iXbRW1Zu4HxeiqjTJivk6ziPTcp-U1aXD-NPgZ46a21KL061Qj6kzc38_facarzCyv1tOdGgVk7OUpCipOSxjZEI9moBKWCzwKn8tQ8yojiCBGQ3xVTC1muEV_4Z2rNByuks5DbUqwKNKFsuIhgu2znFlZo79C1Cb4L36R8rmkoav9IWGvW_-1XVn0O_1-kE3GAyHgUd3-Lnb8fu9frc_xKfbvQ6CN4_-qyJ0_KDX7Q86QTDoDAfD66ve23_1IPGQ)
+**Ryde** is a modern, distributed ride-sharing platform designed to demonstrate production-grade microservices architecture. The system handles real-time driver matching, trip management, payment processing, and live location tracking.
 
+### Key Features
 
-## Installation
-The project requires a couple tools to run, most of which are part of many developer's toolchains.
+- 🗺️ **Real-time Location Tracking** - Live driver locations using geohashing
+- 🚗 **Smart Driver Matching** - Efficient algorithm to match riders with nearby drivers
+- 💳 **Secure Payments** - Integrated Stripe payment processing
+- 📡 **WebSocket Communication** - Real-time updates for riders and drivers
+- 🔍 **Distributed Tracing** - Full observability with Jaeger and OpenTelemetry
+- 📨 **Event-Driven Architecture** - Async communication via RabbitMQ
+- ⚡ **High Performance** - gRPC for inter-service communication
+- 🐳 **Cloud Native** - Kubernetes-ready with Docker containerization
 
-- Docker
-- Go
-- Tilt
-- A local Kubernetes cluster
+---
 
-### MacOS
+## 🏗️ Architecture
 
-1. Install Homebrew from [Homebrew's official website](https://brew.sh/)
+Ryde follows a **microservices architecture** with event-driven communication patterns:
 
-2. Install Docker for Desktop from [Docker's official website](https://www.docker.com/products/docker-desktop/)
-
-3. Install Minikube from [Minikube's official website](https://minikube.sigs.k8s.io/docs/)
-
-4. Install Tilt from [Tilt's official website](https://tilt.dev/)
-
-5. Install Go on MacOS using Homebrew:
-```bash
-brew install go
+```
+┌─────────────┐
+│   Web App   │ (Next.js)
+└──────┬──────┘
+       │ HTTP/WS
+       ▼
+┌─────────────────┐
+│  API Gateway    │ (HTTP/WebSocket → gRPC)
+└────────┬────────┘
+         │ gRPC
+    ┌────┴────┬─────────────┐
+    ▼         ▼             ▼
+┌─────────┐ ┌──────────┐ ┌─────────┐
+│  Trip   │ │  Driver  │ │ Payment │
+│ Service │ │ Service  │ │ Service │
+└────┬────┘ └────┬─────┘ └────┬────┘
+     │           │            │
+     └───────────┴────────────┘
+              │
+         ┌────▼────┐
+         │RabbitMQ │ (Event Bus)
+         └─────────┘
+              │
+         ┌────▼────┐
+         │ MongoDB │ (Database)
+         └─────────┘
 ```
 
-6. Make sure [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) is installed.
+### Communication Patterns
 
-### Windows (WSL)
+- **External → API Gateway**: REST APIs & WebSockets
+- **API Gateway → Services**: gRPC (synchronous)
+- **Service → Service**: RabbitMQ (asynchronous events)
+- **All Services**: MongoDB for persistence
 
-This is a step by step guide to install Go on Windows using WSL.
-You can either install via WSL (recommended) or using powershell (not covered, but similar to WSL).
+---
 
-1. Install WSL for Windows from [Microsoft's official website](https://learn.microsoft.com/en-us/windows/wsl/install)
+## 🛠️ Technology Stack
 
-2. Install Docker for Windows from [Docker's official website](https://www.docker.com/products/docker-desktop/)
+### Backend
 
-3. Install Minikube from [Minikube's official website](https://minikube.sigs.k8s.io/docs/)
+- **Language**: Go 1.23.0
+- **RPC**: gRPC with Protocol Buffers
+- **Message Queue**: RabbitMQ (AMQP 0.9.1)
+- **Database**: MongoDB
+- **Payments**: Stripe API
+- **Tracing**: Jaeger + OpenTelemetry
 
-4. Install Tilt from [Tilt's official website](https://tilt.dev/)
+### Frontend
 
-5. Install Go on Windows using WSL:
+- **Framework**: Next.js 15.1.5 (React 19)
+- **UI**: TailwindCSS + Radix UI
+- **Maps**: Leaflet + React Leaflet
+- **Real-time**: WebSockets
+- **TypeScript**: Full type safety
+
+### Infrastructure
+
+- **Orchestration**: Kubernetes
+- **Containerization**: Docker
+- **Local Dev**: Tilt (hot-reload enabled)
+- **CI/CD**: Production & development environments
+
+---
+
+## 📦 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Go** 1.23.0 or higher ([Download](https://golang.org/dl/))
+- **Node.js** 20+ and npm ([Download](https://nodejs.org/))
+- **Docker** and Docker Compose ([Download](https://www.docker.com/))
+- **Kubernetes** (Docker Desktop, Minikube, or Kind)
+- **Tilt** ([Install](https://docs.tilt.dev/install.html))
+- **kubectl** ([Install](https://kubernetes.io/docs/tasks/tools/))
+- **Protocol Buffers Compiler** (protoc) ([Install](https://grpc.io/docs/protoc-installation/))
+
+### Optional Tools
+
+- **MongoDB Compass** - Database GUI
+- **Postman** - API testing
+- **k9s** - Kubernetes CLI manager
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
 ```bash
-# 1. Get the Go binary
-wget https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz
-
-# 2. Extract the tarball
-sudo tar -xvf go1.23.0.linux-amd64.tar.gz
-
-# 3. Move the extracted folder to /usr/local
-sudo mv go /usr/local
-
-# 4. Add Go to PATH (following the steps from the video)
-cd ~
-explorer.exe .
-
-# Open .bashrc file and add following lines at the bottom and save the file.
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-
-# 5. Verify the installation
-go version
+git clone https://github.com/yourusername/ryde.git
+cd ryde
 ```
 
-6. Make sure [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) is installed.
+### 2. Configure Secrets
 
-## Run
+Create your secrets file from the template:
+
+```bash
+cp infra/development/k8s/secrets.template.yaml infra/development/k8s/secrets.yaml
+```
+
+Edit `secrets.yaml` with your actual values:
+
+- MongoDB connection string
+- Stripe API keys
+- RabbitMQ credentials (if different from defaults)
+
+### 3. Install Go Dependencies
+
+```bash
+go mod download
+```
+
+### 4. Generate Protocol Buffers
+
+```bash
+make generate-proto
+```
+
+### 5. Install Frontend Dependencies
+
+```bash
+cd web
+npm install
+cd ..
+```
+
+### 6. Start the Application with Tilt
+
+Ensure your Kubernetes cluster is running, then:
 
 ```bash
 tilt up
 ```
 
-## Monitor
+This will:
 
-```bash
-kubectl get pods
+- Build all Docker images
+- Deploy services to Kubernetes
+- Enable hot-reloading for rapid development
+- Open Tilt UI in your browser
+
+### 7. Access the Application
+
+Once all services are running:
+
+| Service         | URL                    | Description                           |
+| --------------- | ---------------------- | ------------------------------------- |
+| **Web App**     | http://localhost:3000  | Main user interface                   |
+| **API Gateway** | http://localhost:8081  | REST API & WebSocket                  |
+| **RabbitMQ UI** | http://localhost:15672 | Message queue dashboard (guest/guest) |
+| **Jaeger UI**   | http://localhost:16686 | Distributed tracing                   |
+| **Tilt UI**     | http://localhost:10350 | Development dashboard                 |
+
+---
+
+## 📁 Project Structure
+
+```
+ryde/
+├── services/                 # Microservices
+│   ├── api-gateway/         # HTTP/WS entry point
+│   ├── trip-service/        # Trip management
+│   ├── driver-service/      # Driver management
+│   └── payment-service/     # Payment processing
+├── shared/                   # Shared libraries
+│   ├── contracts/           # API contracts
+│   ├── messaging/           # RabbitMQ utilities
+│   ├── proto/               # Generated protobuf code
+│   ├── tracing/             # OpenTelemetry setup
+│   └── types/               # Common types
+├── web/                      # Next.js frontend
+│   ├── src/
+│   │   ├── app/            # App router pages
+│   │   ├── components/     # React components
+│   │   ├── hooks/          # Custom hooks
+│   │   └── utils/          # Utility functions
+│   └── package.json
+├── proto/                    # Protocol buffer definitions
+├── infra/                    # Infrastructure configs
+│   ├── development/         # Local dev setup
+│   │   ├── docker/         # Dockerfiles
+│   │   └── k8s/            # Kubernetes manifests
+│   └── production/          # Production configs
+├── docs/                     # Documentation
+│   └── architecture/        # Architecture diagrams
+├── tools/                    # Development tools
+├── Tiltfile                  # Tilt configuration
+├── Makefile                  # Build commands
+└── go.mod                    # Go dependencies
 ```
 
-or
+---
+
+## 🔧 Services
+
+### API Gateway
+
+**Port**: 8081 | **Protocol**: HTTP, WebSocket → gRPC
+
+- Entry point for all external requests
+- REST API endpoints for riders and drivers
+- WebSocket connections for real-time updates
+- Routes requests to appropriate microservices via gRPC
+- JWT authentication middleware
+
+**Key Endpoints**:
+
+- `POST /api/trips` - Create a new trip
+- `GET /api/trips/:id` - Get trip details
+- `WS /ws/rider` - Rider WebSocket connection
+- `WS /ws/driver` - Driver WebSocket connection
+
+### Trip Service
+
+**Protocol**: gRPC, RabbitMQ
+
+Core business logic for trip management:
+
+- Trip creation and lifecycle management
+- Dynamic fare calculation
+- Trip state transitions (requested → matched → started → completed)
+- Publishes trip events to RabbitMQ
+- Consumes driver and payment events
+
+**Database**: MongoDB (`trips` collection)
+
+### Driver Service
+
+**Protocol**: gRPC, RabbitMQ
+
+Manages driver operations:
+
+- Driver location updates (geohash-based)
+- Driver availability status
+- Finds nearby available drivers
+- Processes trip assignment events
+- Updates driver state (available/busy)
+
+**Database**: In-memory store with persistence option
+
+### Payment Service
+
+**Protocol**: RabbitMQ
+
+Handles payment processing:
+
+- Stripe integration for payment processing
+- Listens to trip completion events
+- Creates payment intents
+- Processes charges
+- Publishes payment status events
+
+**Integration**: Stripe API
+
+---
+
+## 💻 Development
+
+### Hot Reloading
+
+Tilt provides automatic hot-reloading:
+
+- Backend services rebuild on Go file changes
+- Frontend hot-reloads on TypeScript/React changes
+- No manual restart needed
+
+### Building Services Manually
 
 ```bash
-minikube dashboard
+# Build all services
+go build ./services/api-gateway
+go build ./services/trip-service/cmd/main.go
+go build ./services/driver-service
+go build ./services/payment-service/cmd/main.go
+
+# Build frontend
+cd web && npm run build
 ```
 
-## Deployment (Google Cloud example)
-It's advisable to first run the steps manually and then build a proper CI/CD flow according to your infrastructure.
-
-## 0. Environments
-```bash
-REGION: europe-west1 # change according to your location
-PROJECT_ID: <your-gcp-project-id>
-```
-
-## 1. Add secrets.yaml file to the production folder
-
-Production folder needs to contain a secrets.yaml for the production environment, you can just copy secrets from the development folder for now.
-
-## 2. Build Docker Images
-Build all docker images and tag them accordingly to push to Artifact Registry.
-```bash
-# Build the Api gateway 
-docker build -t {REGION}-docker.pkg.dev/{PROJECT_ID}/ride-sharing/api-gateway:latest --platform linux/amd64 -f infra/production/docker/api-gateway.Dockerfile .
-
-# Build the Driver service 
-docker build -t {REGION}-docker.pkg.dev/{PROJECT_ID}/ride-sharing/driver-service:latest --platform linux/amd64 -f infra/production/docker/driver-service.Dockerfile .
-
-# Build the Trip service 
-docker build -t {REGION}-docker.pkg.dev/{PROJECT_ID}/ride-sharing/trip-service:latest --platform linux/amd64 -f infra/production/docker/trip-service.Dockerfile .
-
-# Build the Payment service 
-docker build -t {REGION}-docker.pkg.dev/{PROJECT_ID}/ride-sharing/payment-service:latest --platform linux/amd64 -f infra/production/docker/payment-service.Dockerfile .
-```
-
-## 3. Create a Artifact Registry repository
-Go to Google Cloud > Artifact Registry and manually create a docker repository to host your project images. 
-
-
-## 4. Push the Docker images to artifact registry
-
-Docker push the images. 
-If you get errors pushing:
-1. Make sure to `gcloud login`, select the right project or even `gcloud init`.
-2. Configure artifact on your docker config `gcloud auth configure-docker {REGION}-docker.pkg.dev` [Docs](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling#cred-helper)
-
-
-## 5. Create a Google Kubernetes Cluster
-You can either run a `gcloud` command to start a GKE cluster or manually create a cluster on the UI (recommended).
-
-## 6. Update manifests files
-
-Connect to your remote cluster and apply the kubernetes manifests.
+### Running Tests
 
 ```bash
-gcloud container clusters get-credentials ride-sharing --region {REGION}--project {PROJECT_ID}
+# Run Go tests
+go test ./...
+
+# Run frontend tests
+cd web && npm test
 ```
 
-Next, upload each manifest by hand to make sure the correct order is maintained.
+### Generating Protocol Buffers
+
+After modifying `.proto` files:
 
 ```bash
-# First, apply the app-config and secrets
-kubectl apply -f infra/production/k8s/app-config.yaml
-kubectl apply -f infra/production/k8s/secrets.yaml
-
-# Jaeger
-kubectl apply -f infra/production/k8s/jaeger-deployment.yaml
-
-# RabbitMQ
-kubectl apply -f infra/production/k8s/rabbitmq-deployment.yaml
-
-# Wait for both Jaeger and RabbitMQ to be running successfully
-
-# Then, apply the services
-kubectl apply -f infra/production/k8s/api-gateway-deployment.yaml
-# Wait until the API is up and then do the next and so on...
-kubectl apply -f infra/production/k8s/driver-service-deployment.yaml
-kubectl apply -f infra/production/k8s/trip-service-deployment.yaml
-kubectl apply -f infra/production/k8s/payment-service-deployment.yaml
+make generate-proto
 ```
 
-If you need to redeploy you can use the same command above or just `kubectl apply -f infra/production/k8s`
-Sometimes pods might need to be deleted for new ones to be deployed.
+### Adding a New Service
+
+Use the service generator tool:
 
 ```bash
-kubectl get pods
-kubectl delete pod <pod-name>
-
-# or for all deployments
-kubectl rollout restart deployment
+go run tools/create_service.go <service-name>
 ```
 
-## 7. Enjoy!
-```bash
-Get the External IP from the api-gateway
-kubectl get services
-```
+---
 
-Go back to locally developing your project by changing kubernetes context
-```bash
-kubectl config get-contexts
+## 🏢 Infrastructure
 
-# For Docker Desktop
-kubectl config use-context docker-desktop
+### Kubernetes Manifests
 
-# OR for Minikube
-kubectl config use-context minikube
-```
+Each service has:
 
-## Adding HTTPS to your API
-0. Reserve a static IP in GCP:
-Go to the Google Cloud Console → VPC Network → External IP addresses.
-Click "RESERVE STATIC ADDRESS".
-Name it api-gateway-ip (to match your annotation).
-Choose the same region as your GKE cluster (or "global" if using a global Ingress).
+- **Deployment**: Manages pods and replicas
+- **Service**: Internal networking
+- **ConfigMap**: Environment configuration
+- **Secrets**: Sensitive data
 
-Confirm your IP exists:
-```bash
-gcloud compute addresses list
-```
+### Environment Configuration
 
-1. Add the ingress deployment
-2. Change from LoadBalancer to ClusterIP
-3. Apply the config
-```bash
-kubectl apply -f infra/production/k8s/api-gateway-ingress.yaml
-kubectl apply -f infra/production/k8s/api-gateway-deployment.yaml
-```
-4. Get the IP address: 
-```bash
-kubectl get ingress api-gateway-ingress
-```
+Two environments available:
 
-You should also wait for SSL certificate to be provisioned. Check the status:
+- **Development** (`infra/development/`): Hot-reload, debug settings
+- **Production** (`infra/production/`): Optimized, secure, scalable
+
+### Deployment
+
+#### Development (Local)
 
 ```bash
-kubectl describe managedcertificate api-gateway-cert
+tilt up
 ```
 
-Once the certificate is provisioned (you'll see a "Provisioning" status change to "Active")
+#### Production
 
-5. The Ingress will automatically provision a Google-managed SSL certificate for the IP address. You can access your API using:
 ```bash
-https://<IP_ADDRESS>
+# Apply production configs
+kubectl apply -f infra/production/k8s/
+
+# Or use your CI/CD pipeline
 ```
 
-Note: Since this is using a self-signed certificate, browsers will show a security warning. This is normal and expected. You can:
-Accept the warning in your browser (not recommended for production)
-Use a proper domain name (recommended for production)
+---
+
+## 📊 Observability
+
+### Distributed Tracing
+
+**Jaeger** provides end-to-end request tracing:
+
+- Trace requests across all microservices
+- Identify performance bottlenecks
+- Debug distributed transactions
+
+Access Jaeger UI: http://localhost:16686
+
+### Logging
+
+All services use structured logging:
+
+- Service name
+- Trace ID / Span ID correlation
+- Request/Response logging
+
+### Monitoring
+
+The system includes:
+
+- **OpenTelemetry** instrumentation on all services
+- **gRPC interceptors** for trace propagation
+- **HTTP middleware** for request tracking
+- **RabbitMQ tracing** for async operations
+
+---
+
+## 📚 Documentation
+
+Additional documentation available in the `docs/` directory:
+
+- [Architecture Diagrams](docs/architecture/)
+- [RabbitMQ Flow](docs/architecture/rabbitmq-flow-v1.md)
+- [Trip Creation Flow](docs/architecture/trip-creation-flow-v1.md)
